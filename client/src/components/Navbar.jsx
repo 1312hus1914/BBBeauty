@@ -3,11 +3,11 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 
 const navItems = [
     { to: "/", label: "НАЧАЛО", end: true },
-    { to: "/za-nas", label: "ЗА НАС" },
+    { to: "/aboutus", label: "ЗА НАС" },
     { to: "/protseduri", label: "ПРОЦЕДУРИ" },
-    { to: "/tseni", label: "ЦЕНИ" },
-    { to: "/galeriya", label: "ГАЛЕРИЯ" },
-    { to: "/kontakti", label: "КОНТАКТИ" },
+    { to: "/price", label: "ЦЕНИ" },
+    { to: "/gallery", label: "ГАЛЕРИЯ" },
+    { to: "/contact", label: "КОНТАКТИ" },
 ];
 
 const Navbar = () => {
@@ -90,7 +90,24 @@ const Navbar = () => {
                         <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-slate-900 text-pink-200 uppercase tracking-[0.16em]">
                             ADMIN
                         </span>
-                    )}
+                    )} 
+                     {currentUser && (
+                            <Link
+                                to="/my-bookings"
+                                className="text-[11px] text-slate-600 hover:text-pink-600"
+                            >
+                                Моите резервации
+                            </Link>
+                        )}
+
+                        {isAdmin && (
+                            <Link
+                                to="/admin"
+                                className="text-[11px] text-slate-600 hover:text-pink-600"
+                            >
+                                Админ панел
+                            </Link>
+                        )}
 
                     {/* Auth area */}
                     {!currentUser ? (
@@ -159,23 +176,7 @@ const Navbar = () => {
                                 ADMIN
                             </span>
                         )}
-                        {currentUser && (
-                            <Link
-                                to="/my-bookings"
-                                className="text-[11px] text-slate-600 hover:text-pink-600"
-                            >
-                                Моите резервации
-                            </Link>
-                        )}
-
-                        {isAdmin && (
-                            <Link
-                                to="/admin"
-                                className="text-[11px] text-slate-600 hover:text-pink-600"
-                            >
-                                Админ панел
-                            </Link>
-                        )}
+                       
 
 
                         {/* Auth controls for mobile */}

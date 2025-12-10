@@ -19,7 +19,7 @@ const Home = () => {
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href="#booking"
+              href="/booking"
               className="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-[0.16em] uppercase bg-pink-600 text-white hover:bg-pink-700"
             >
               НАПРАВЕТЕ РЕЗЕРВАЦИЯ
@@ -119,13 +119,13 @@ const Home = () => {
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <a
-              href="/protseduri"
+              href="/booking"
               className="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-[11px] font-semibold tracking-[0.16em] uppercase bg-pink-500 text-white hover:bg-pink-400"
             >
               ЗАПАЗИ СЕГА
             </a>
             <a
-              href="/kontakti"
+              href="/contact"
               className="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-[11px] font-semibold tracking-[0.16em] uppercase border border-slate-500 text-slate-100 hover:border-pink-400 hover:text-pink-200"
             >
               ВИЖ КОНТАКТИ
