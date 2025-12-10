@@ -3,6 +3,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
 const router = express.Router();
 
@@ -115,9 +117,9 @@ router.post('/login', async (req, res) => {
 });
 
 /* ============================================================
-   GET ALL USERS (admin might use this)
+   GET ALL USERS (admin only)
    ============================================================ */
-router.get('/', async (req, res) => {
+router.get('/', auth, admin, async (req, res) => {
   try {
     const users = await User.find().select('-password');
     res.json(users);

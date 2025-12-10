@@ -1,76 +1,111 @@
-// routes/bookingRoutes.js
 const express = require('express');
 const router = express.Router();
-
 const Booking = require('../models/Booking');
+const Service = require('../models/Service');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
-// --- Validation helper ---
-function validateBookingInput(body) {
-  const errors = [];
-
-  if (!body.user) errors.push('user is required');
-  if (!body.service) errors.push('service is required');
-  if (!body.date) errors.push('date is required');
-
-  return errors;
-}
-
-// --- Check if time slot is available ---
-async function isTimeSlotAvailable(serviceId, date) {
-  // date comes as string -> convert to Date
-  const bookingDate = new Date(date);
-
-  // SIMPLE VERSION:
-  // We treat bookings as exact time slots. If same service & same date/time exists -> not available.
-  const existing = await Booking.findOne({
-    service: serviceId,
-    date: bookingDate,
-  });
-
-  return !existing;
-}
-
-// POST /booking  -> create a booking
-router.post('/', async (req, res) => {
+// POST /bookings - създаване на резервация за текущия потребител
+router.post('/', auth, async (req, res) => {
   try {
-    const errors = validateBookingInput(req.body);
-    if (errors.length > 0) {
-      return res.status(400).json({ errors });
-    }
+    const { serviceId, datetime, note } = req.body;
 
-    const { user, service, date, notes } = req.body;
-
-    const available = await isTimeSlotAvailable(service, date);
-    if (!available) {
+    if (!serviceId || !datetime) {
       return res
         .status(400)
-        .json({ message: 'This time slot is already booked for this service.' });
+        .json({ message: 'serviceId и datetime са задължителни' });
+    }
+
+    const service = await Service.findById(serviceId);
+    if (!service) {
+      return res.status(404).json({ message: 'Услугата не е намерена' });
+    }
+
+    const when = new Date(datetime);
+    if (isNaN(when.getTime())) {
+      return res.status(400).json({ message: 'Невалидна дата/час' });
     }
 
     const booking = await Booking.create({
-      user,
-      service,
-      date: new Date(date),
-      notes,
+      service: service._id,
+      customer: req.user._id,
+      datetime: when,
+      note: note || '',
+      status: 'pending',
     });
 
-    res.status(201).json(booking);
+    const populated = await Booking.findById(booking._id)
+      .populate('service', 'name duration price category')
+      .populate('customer', 'name email phone');
+
+    res.status(201).json(populated);
   } catch (err) {
     console.error('Error creating booking:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// GET /booking  -> list bookings
-router.get('/', async (req, res) => {
+// GET /bookings/slots?serviceId=...&date=YYYY-MM-DD
+// връща заетите часове за дадена услуга и дата
+router.get('/slots', auth, async (req, res) => {
   try {
-    const bookings = await Booking.find()
-      .populate('user', 'name email')
-      .populate('service', 'name price');
+    const { serviceId, date } = req.query;
 
+    if (!serviceId || !date) {
+      return res
+        .status(400)
+        .json({ message: 'serviceId и date са задължителни' });
+    }
+
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayStart.getDate() + 1);
+
+    const bookings = await Booking.find({
+      service: serviceId,
+      datetime: { $gte: dayStart, $lt: dayEnd },
+      status: { $ne: 'cancelled' },
+    });
+
+    const takenSlots = bookings.map((b) => {
+      const h = String(b.datetime.getHours()).padStart(2, '0');
+      const m = String(b.datetime.getMinutes()).padStart(2, '0');
+      return `${h}:${m}`;
+    });
+
+    res.json({ takenSlots });
+  } catch (err) {
+    console.error('Error fetching slots:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// примерни помощни рутове (по-късно може да ги ползваме)
+
+// GET /bookings/my - моите резервации
+router.get('/my', auth, async (req, res) => {
+  try {
+    const bookings = await Booking.find({ customer: req.user._id })
+      .sort({ datetime: 1 })
+      .populate('service', 'name duration price category');
     res.json(bookings);
   } catch (err) {
-    console.error('Error fetching bookings:', err);
+    console.error('Error fetching my bookings:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// GET /bookings/admin - всички резервации (само админ)
+router.get('/admin', auth, admin, async (req, res) => {
+  try {
+    const bookings = await Booking.find()
+      .sort({ datetime: 1 })
+      .populate('service', 'name duration price category')
+      .populate('customer', 'name email phone');
+    res.json(bookings);
+  } catch (err) {
+    console.error('Error fetching all bookings:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

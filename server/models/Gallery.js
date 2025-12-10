@@ -12,6 +12,11 @@ const gallerySchema = new Schema(
       type: String,
       trim: true,
     },
+    category: {
+      type: String,
+      enum: ['portfolio', 'interior', 'certificates', 'smiles'],
+      default: 'portfolio',
+    },
     service: {
       type: Schema.Types.ObjectId,
       ref: 'Service',

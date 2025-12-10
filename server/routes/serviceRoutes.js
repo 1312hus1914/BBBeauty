@@ -9,7 +9,15 @@ const admin = require('../middleware/admin');
 // GET /api/services - list all services (public)
 router.get('/', async (req, res) => {
   try {
-    const services = await Service.find();
+    const { category } = req.query;
+    const filter = {};
+
+    // ако е подаден ?category=manicure | pedicure | ...
+    if (category) {
+      filter.category = category;
+    }
+
+    const services = await Service.find(filter).sort({ name: 1 });
     res.json(services);
   } catch (err) {
     console.error('Error fetching services:', err);
@@ -34,15 +42,16 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/services - create new service (admin only)
+// POST /services - create new service (admin only)
 router.post('/', auth, admin, async (req, res) => {
   try {
-    const { name, description, price, duration, isActive } = req.body;
+    const { name, description, price, duration, isActive, category } = req.body;
 
     // basic validation
-    if (!name || price == null) {
+    if (!name || price == null || !category) {
       return res
         .status(400)
-        .json({ message: 'Name and price are required' });
+        .json({ message: 'Name, price and category are required' });
     }
 
     const service = new Service({
@@ -50,6 +59,7 @@ router.post('/', auth, admin, async (req, res) => {
       description,
       price,
       duration,
+      category, // 🔴 ВАЖНО
       isActive: isActive !== undefined ? isActive : true,
     });
 
@@ -60,7 +70,6 @@ router.post('/', auth, admin, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 // PUT /api/services/:id - update service (admin only)
 router.put('/:id', auth, admin, async (req, res) => {
   try {

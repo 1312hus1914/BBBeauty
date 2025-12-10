@@ -21,6 +21,11 @@ const serviceSchema = new Schema(
       type: Number, // minutes
       min: 0,
     },
+    category: {
+      type: String,
+      enum: ['manicure', 'nail-extensions', 'pedicure', 'design'],
+      required: true,
+    },
     isActive: {
       type: Boolean,
       default: true,
