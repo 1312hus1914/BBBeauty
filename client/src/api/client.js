@@ -57,7 +57,14 @@ const api = {
       method: "POST",
       body: formData,
     });
+
   },
+  delete(path) {
+    return request(path, {
+      method: "DELETE",
+    });
+  },
+
 };
 
 export default api;

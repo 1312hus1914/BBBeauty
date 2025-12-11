@@ -22,6 +22,15 @@ const gallerySchema = new Schema(
       ref: 'Service',
       required: false, // can be general gallery if not set
     },
+    uploadedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: false, // може да го направиш true, ако искаш винаги да има собственик
+    },
+    publicId: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );

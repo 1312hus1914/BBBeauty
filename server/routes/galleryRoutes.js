@@ -20,9 +20,10 @@ const upload = multer({ storage });
 // ===========================
 
 // POST /gallery - add image via direct URL (existing behavior)
+// POST /gallery - add image via direct URL (existing behavior)
 router.post('/', auth, admin, async (req, res) => {
   try {
-    const { imageUrl, caption, service } = req.body;
+    const { imageUrl, caption, service, category } = req.body;
 
     if (!imageUrl) {
       return res.status(400).json({ message: 'imageUrl is required' });
@@ -33,6 +34,7 @@ router.post('/', auth, admin, async (req, res) => {
       caption,
       service,
       category: category || 'portfolio',
+      uploadedBy: req.user && req.user._id, // по желание
     });
 
     res.status(201).json(image);
@@ -41,6 +43,7 @@ router.post('/', auth, admin, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // GET /gallery - list images (existing behavior)
 router.get('/', async (req, res) => {
@@ -58,12 +61,31 @@ router.get('/', async (req, res) => {
 // ===========================
 
 // POST /gallery/upload - upload real image file to Cloudinary
-router.post('/upload', upload.single('image'), async (req, res) => {
+// POST /gallery/upload - upload real image file to Cloudinary
+// POST /gallery/upload - upload real image file to Cloudinary
+router.post('/upload', auth, upload.single('image'), async (req, res) => {
   try {
-    const { caption, service } = req.body;
+    const { caption, service, category } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ message: 'No image file provided' });
+    }
+
+    // взимаме категорията от body-то, ако липсва -> 'portfolio'
+    const cat = category || 'portfolio';
+
+    // Категории, в които само admin може да качва
+    const adminOnlyCategories = ['portfolio', 'interior', 'certificates'];
+
+    if (adminOnlyCategories.includes(cat) && req.user.role !== 'admin') {
+      return res
+        .status(403)
+        .json({ message: 'Само администратор може да качва в тази категория.' });
+    }
+
+    // валидна категория
+    if (!['portfolio', 'interior', 'certificates', 'smiles'].includes(cat)) {
+      return res.status(400).json({ message: 'Невалидна категория.' });
     }
 
     // Convert buffer to base64 Data URI
@@ -72,15 +94,17 @@ router.post('/upload', upload.single('image'), async (req, res) => {
 
     // Upload to Cloudinary
     const result = await cloudinary.uploader.upload(dataURI, {
-      folder: 'gallery', // optional folder name in Cloudinary
+      folder: 'gallery',
     });
 
-    // Save in MongoDB using your existing schema
+    // Save in MongoDB
     const image = await Gallery.create({
       imageUrl: result.secure_url,
       caption,
-      service: service || undefined, // optional
-      category: category || 'portfolio',
+      service: service || undefined,
+      category: cat,
+      uploadedBy: req.user._id, // ако имаш това поле в модела
+      publicId: result.public_id,
     });
 
     res.status(201).json(image);
@@ -89,5 +113,43 @@ router.post('/upload', upload.single('image'), async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+// DELETE /gallery/:id - only admin can delete images
+router.delete('/:id', auth, admin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const img = await Gallery.findById(id);
+    if (!img) {
+      return res.status(404).json({ message: 'Снимката не е намерена.' });
+    }
+
+    // 1) Опитваме да изтрием от Cloudinary, ако имаме publicId
+    if (img.publicId) {
+      try {
+        await cloudinary.uploader.destroy(img.publicId);
+        console.log('Cloudinary image deleted:', img.publicId);
+      } catch (cloudErr) {
+        console.error('Error deleting from Cloudinary:', cloudErr);
+        // НЕ хвърляме грешка към клиента – не искаме да блокираме изтриването от базата
+      }
+    } else {
+      // по желание: опит да извлечем publicId от URL за стари записи
+      // ако не искаш, може да махнеш целия else блок
+      console.log('No publicId on image, skipping Cloudinary delete');
+    }
+
+    // 2) Трием документа от MongoDB
+    await img.deleteOne();
+
+    res.json({ message: 'Снимката е изтрита успешно.' });
+  } catch (err) {
+    console.error('Error deleting gallery image:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+
 
 module.exports = router;

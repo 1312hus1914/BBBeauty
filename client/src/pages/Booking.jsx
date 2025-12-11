@@ -88,7 +88,7 @@ const Booking = () => {
                 setTakenSlots([]);
 
                 const data = await api.get(
-                    `/bookings/slots?serviceId=${selectedServiceId}&date=${date}`
+                    `/booking/slots?serviceId=${selectedServiceId}&date=${date}`
                 );
 
 
@@ -168,7 +168,7 @@ const Booking = () => {
             };
 
             // Assuming POST /bookings creates a booking for the current user (based on JWT)
-            const data = await api.post("/bookings", payload);
+            const data = await api.post("/booking", payload);
 
             setBookingSuccess(
                 "Резервацията е изпратена успешно. Ще получите потвърждение от салона."

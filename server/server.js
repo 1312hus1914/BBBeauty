@@ -61,6 +61,7 @@ app.use("/booking", require("./routes/bookingRoutes"));
 app.use("/service", require('./routes/serviceRoutes'));
 app.use("/review", require('./routes/reviewRoutes'));
 app.use("/gallery",  require('./routes/galleryRoutes'));
+app.use("/contact", require("./routes/contactRoutes"));
 
 // 404 handler for unknown routes
 app.use(notFound);
