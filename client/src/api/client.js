@@ -59,6 +59,21 @@ const api = {
     });
 
   },
+  put(path, body) {
+    return request(path, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    });
+  },
+
+  patch(path, body) {
+    return request(path, {
+      method: "PATCH",
+      body: JSON.stringify(body ?? {}),
+    });
+  },
+
+
   delete(path) {
     return request(path, {
       method: "DELETE",

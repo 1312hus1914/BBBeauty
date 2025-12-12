@@ -31,7 +31,7 @@ const Register = () => {
     try {
       setLoading(true);
 
-      const data = await api.post("/auth/register", {
+      const data = await api.post("/users/register", {
         name,
         phone,
         email,

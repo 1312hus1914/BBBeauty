@@ -6,16 +6,14 @@ const Service = require('../models/Service');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
-// GET /api/services - list all services (public)
+// GET service - list all services (public)
 router.get('/', async (req, res) => {
   try {
     const { category } = req.query;
-    const filter = {};
+    const filter = { isActive: true};
 
     // ако е подаден ?category=manicure | pedicure | ...
-    if (category) {
-      filter.category = category;
-    }
+    if (req.query.category) filter.category = req.query.category;
 
     const services = await Service.find(filter).sort({ name: 1 });
     res.json(services);
@@ -25,7 +23,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/services/:id - get single service (public)
+// GET /service/:id - get single service (public)
 router.get('/:id', async (req, res) => {
   try {
     const service = await Service.findById(req.params.id);
@@ -41,8 +39,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/services - create new service (admin only)
-// POST /services - create new service (admin only)
+// POST service - create new service (admin only)
 router.post('/', auth, admin, async (req, res) => {
   try {
     const { name, description, price, duration, isActive, category } = req.body;
@@ -59,7 +56,7 @@ router.post('/', auth, admin, async (req, res) => {
       description,
       price,
       duration,
-      category, // 🔴 ВАЖНО
+      category, 
       isActive: isActive !== undefined ? isActive : true,
     });
 
@@ -70,10 +67,10 @@ router.post('/', auth, admin, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-// PUT /api/services/:id - update service (admin only)
+// PUT /service/:id - update service (admin only)
 router.put('/:id', auth, admin, async (req, res) => {
   try {
-    const { name, description, price, duration, isActive } = req.body;
+    const { name, description, price, duration, isActive, category  } = req.body;
 
     const updates = {};
     if (name !== undefined) updates.name = name;
@@ -81,7 +78,8 @@ router.put('/:id', auth, admin, async (req, res) => {
     if (price !== undefined) updates.price = price;
     if (duration !== undefined) updates.duration = duration;
     if (isActive !== undefined) updates.isActive = isActive;
-
+    if (category !== undefined) updates.category = category;
+    
     const updated = await Service.findByIdAndUpdate(
       req.params.id,
       updates,
@@ -99,7 +97,7 @@ router.put('/:id', auth, admin, async (req, res) => {
   }
 });
 
-// DELETE /api/services/:id - delete service (admin only)
+// DELETE /service/:id - delete service (admin only)
 router.delete('/:id', auth, admin, async (req, res) => {
   try {
     const deleted = await Service.findByIdAndDelete(req.params.id);

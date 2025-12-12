@@ -132,7 +132,7 @@ const Contact = () => {
             </a>
           </div>
 
-          <div className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+         {/* <div className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
             <h2 className="text-lg font-semibold mb-2 border-b border-slate-200 pb-2">
               Социални мрежи
             </h2>
@@ -156,9 +156,9 @@ const Contact = () => {
               >
                 Instagram
               </a>
-              {/* Добави още мрежи при нужда */}
+              {/* Добави още мрежи при нужда }
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 

@@ -55,7 +55,7 @@ app.use('/api', apiLimiter);
 // Stricter limiter for auth endpoints
 //app.use('/auth', authLimiter); // adjust path if your auth routes are mounted differently
 
-app.use("/auth", require("./routes/authRoutes"));
+
 app.use("/users",  require('./routes/userRoutes'));
 app.use("/booking", require("./routes/bookingRoutes"));
 app.use("/service", require('./routes/serviceRoutes'));

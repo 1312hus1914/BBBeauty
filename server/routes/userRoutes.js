@@ -51,7 +51,7 @@ router.post('/register', async (req, res) => {
       email,
       phone,
       password: hashedPassword,
-      role: role || 'customer',
+      role: 'customer',
     });
 
     // Generate token
