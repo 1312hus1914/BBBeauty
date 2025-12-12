@@ -70,6 +70,8 @@ const Prices = () => {
   const toggleCategory = (id) => {
     setOpenCategoryId((current) => (current === id ? null : id));
   };
+  console.log("DEPLOY CHECK: Prices page updated");
+
 
   return (
     <main className="flex flex-col gap-10 md:gap-14">
