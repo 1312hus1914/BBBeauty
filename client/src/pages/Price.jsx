@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../api/client"; // adjust path if Prices is in another folder
 
 
 const CATEGORY_META = [
@@ -27,13 +28,8 @@ const Prices = () => {
         setError(null);
 
         // ако фронт и бекенд са на един домейн, това стига
-        const res = await fetch("http://localhost:5000/service");
+        const data = await api.get("/service");
 
-        if (!res.ok) {
-          throw new Error("Грешка при зареждане на услугите.");
-        }
-
-        const data = await res.json();
 
         // само активни услуги
         const active = data.filter((s) => s.isActive !== false);

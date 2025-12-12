@@ -6,7 +6,7 @@ require("dotenv").config();
 require("./db");
 
 const app = express();
-app.use(cors());
+
 app.use(express.json());
 
 const errorHandler = require('./middleware/errorHandler');
@@ -19,12 +19,12 @@ const hpp = require('hpp');
 app.use(helmet());
 
 // CORS – adjust origin as needed (front-end URL)
-app.use(
-  cors({
-    origin: 'http://localhost:3000', // or your actual frontend
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
 // Parse JSON
 app.use(express.json());
