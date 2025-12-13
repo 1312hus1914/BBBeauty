@@ -90,24 +90,24 @@ const Navbar = () => {
                         <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-slate-900 text-pink-200 uppercase tracking-[0.16em]">
                             ADMIN
                         </span>
-                    )} 
-                     {currentUser && (
-                            <Link
-                                to="/my-bookings"
-                                className="text-[11px] text-slate-600 hover:text-pink-600"
-                            >
-                                Моите резервации
-                            </Link>
-                        )}
+                    )}
+                    {currentUser && (
+                        <Link
+                            to="/my-bookings"
+                            className="text-[11px] text-slate-600 hover:text-pink-600"
+                        >
+                            Моите резервации
+                        </Link>
+                    )}
 
-                        {isAdmin && (
-                            <Link
-                                to="/admin"
-                                className="text-[11px] text-slate-600 hover:text-pink-600"
-                            >
-                                Админ панел
-                            </Link>
-                        )}
+                    {isAdmin && (
+                        <Link
+                            to="/admin"
+                            className="text-[11px] text-slate-600 hover:text-pink-600"
+                        >
+                            Админ панел
+                        </Link>
+                    )}
 
                     {/* Auth area */}
                     {!currentUser ? (
@@ -150,7 +150,7 @@ const Navbar = () => {
             {/* Mobile menu */}
             {open && (
                 <div className="md:hidden border-t border-slate-200 bg-white">
-                    <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-2">
+                    <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-2 max-h-[calc(100vh-64px)] overflow-y-auto">
                         {navItems.map((item) => (
                             <NavLink
                                 key={item.to}
@@ -159,7 +159,7 @@ const Navbar = () => {
                                 onClick={() => setOpen(false)}
                                 className={({ isActive }) =>
                                     [
-                                        "text-xs font-semibold tracking-[0.08em] uppercase py-1",
+                                        "text-xs font-semibold tracking-[0.08em] uppercase py-2",
                                         isActive
                                             ? "text-pink-600"
                                             : "text-slate-700 hover:text-pink-500",
@@ -170,21 +170,40 @@ const Navbar = () => {
                             </NavLink>
                         ))}
 
+                        {/* User links that were missing on mobile */}
+                        {currentUser && (
+                            <Link
+                                to="/my-bookings"
+                                onClick={() => setOpen(false)}
+                                className="text-[11px] text-slate-600 hover:text-pink-600 py-2"
+                            >
+                                Моите резервации
+                            </Link>
+                        )}
+
+                        {isAdmin && (
+                            <Link
+                                to="/admin"
+                                onClick={() => setOpen(false)}
+                                className="text-[11px] text-slate-600 hover:text-pink-600 py-2"
+                            >
+                                Админ панел
+                            </Link>
+                        )}
+
                         {/* Admin badge info */}
                         {isAdmin && (
                             <span className="inline-flex items-center text-[10px] font-semibold px-2 py-1 rounded-full bg-slate-900 text-pink-200 uppercase tracking-[0.16em] mt-1 w-max">
                                 ADMIN
                             </span>
                         )}
-                       
-
 
                         {/* Auth controls for mobile */}
                         {!currentUser ? (
                             <Link
                                 to="/login"
                                 onClick={() => setOpen(false)}
-                                className="inline-flex items-center justify-center text-[11px] font-medium text-slate-600 border border-slate-200 px-3 py-1 rounded-full self-start mt-2 hover:text-slate-800"
+                                className="inline-flex items-center justify-center text-[11px] font-medium text-slate-600 border border-slate-200 px-3 py-2 rounded-full self-start mt-2 hover:text-slate-800"
                             >
                                 Вход
                             </Link>
@@ -196,7 +215,7 @@ const Navbar = () => {
                                 <button
                                     type="button"
                                     onClick={handleLogout}
-                                    className="ml-3 text-[11px] font-medium text-slate-600 border border-slate-200 px-3 py-1 rounded-full"
+                                    className="ml-3 text-[11px] font-medium text-slate-600 border border-slate-200 px-3 py-2 rounded-full"
                                 >
                                     Изход
                                 </button>
@@ -205,6 +224,7 @@ const Navbar = () => {
                     </div>
                 </div>
             )}
+
         </header>
     );
 };
